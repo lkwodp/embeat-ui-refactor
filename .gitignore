@@ -1,0 +1,31 @@
+# Python (backend, uv)
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+uv.lock.tmp
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Runtime data (user accounts, encrypted credentials, caches)
+backend/embeat/data/embeat.db
+backend/embeat/data/embeat.db-*
+backend/embeat/data/secret.key
+backend/embeat/data/kugou_credentials.json
+backend/embeat/data/.disabled_credentials.json
+backend/embeat/data/music_metadata_cache.json
+backend/embeat/data/music_metadata_cache.*.json
+backend/embeat/data/backups/
+
+# Node (frontend)
+node_modules/
+frontend/dist/
+*.local
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

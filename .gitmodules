@@ -1,0 +1,3 @@
+[submodule "embeat"]
+	path = embeat
+	url = https://github.com/gdstudio-org/Embeat.git

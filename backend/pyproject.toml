@@ -1,0 +1,32 @@
+[project]
+name = "embeat-web-backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "cloudscraper>=1.2.71",
+    "cryptography>=42",
+    "fastapi>=0.141.1",
+    "filelock>=3.32.3",
+    "gensim>=4.4.0",
+    "hdbscan>=0.8.44",
+    "numpy>=1.26,<=1.26.4",
+    "polars>=1.43.2",
+    "python-dotenv>=1.2.3",
+    "qdrant-client>=1.18.0,<1.19.0",
+    "requests>=2.34.2",
+    "uvicorn[standard]>=0.52.3",
+    "zhconv>=1.4.3",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = [".", "embeat"]
+testpaths = ["tests", "embeat/tests"]

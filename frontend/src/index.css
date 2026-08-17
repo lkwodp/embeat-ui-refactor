@@ -1,0 +1,69 @@
+:root {
+  --bg: #f7f7f9;
+  --panel: #ffffff;
+  --line: #e5e4e8;
+  --ink: #1f1f24;
+  --muted: #6b6872;
+  --accent: #8b5cf6;
+  --accent-hover: #7c3aed;
+  --accent-ink: #ffffff;
+  --online: #22c55e;
+  --offline: #ef4444;
+  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  --sans: system-ui, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 15px/1.5 var(--sans);
+  color-scheme: light dark;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131316;
+    --panel: #1d1d23;
+    --line: #2e2f38;
+    --ink: #f3f4f6;
+    --muted: #9ca3af;
+    --accent: #c084fc;
+    --accent-hover: #a855f7;
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.25);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+#root {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+.app-header h1 {
+  font-size: 28px;
+  letter-spacing: -0.5px;
+  margin-bottom: 24px;
+}
+
+.home {
+  display: grid;
+  gap: 28px;
+}
