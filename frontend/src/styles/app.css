@@ -566,7 +566,6 @@ h1 { margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: 0; }
   .divider, .id-form { display: none; }
   .service-status { position: absolute; right: 20px; top: 22px; margin: 0; padding: 0; border: 0; }
   .service-status div { display: none; }
-  .sidebar-tools { display: none; }
   .discover-tools { grid-template-columns: 1fr 1.5fr; }
   .workspace { margin-left: 0; padding: 0 18px 36px; }
   .topbar { min-height: 90px; }
