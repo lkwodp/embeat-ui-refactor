@@ -83,6 +83,11 @@ export function ExportModal({ hook, onToast }: { hook: ExportModalHook; onToast:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hook.visible])
 
+  useEffect(() => {
+    if (hook.visible) void preparePlatforms()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target, hook.visible])
+
   const requestedPlatforms = useCallback((): ('netease' | 'kugou')[] => {
     if (target === 'both') return ['netease', 'kugou']
     return [target]
@@ -244,8 +249,7 @@ export function ExportModal({ hook, onToast }: { hook: ExportModalHook; onToast:
       setProgressMode(false)
       setResultMode(true)
       setResultHtml(
-        `${Object.entries(result?.targets || {}).map(([platform, platformResult]) => renderPlatformExportResult(platform, platformResult)).join('')}
-        <button class="secondary-button" type="button" data-close-modal onClick={() => hook.close()}>关闭</button>`,
+        `${Object.entries(result?.targets || {}).map(([platform, platformResult]) => renderPlatformExportResult(platform, platformResult)).join('')}`,
       )
     } catch (error) {
       setProgressMode(false)
@@ -443,7 +447,14 @@ export function ExportModal({ hook, onToast }: { hook: ExportModalHook; onToast:
           </div>
         ) : null}
 
-        {resultMode ? <div id="netease-result" className="modal-section" dangerouslySetInnerHTML={{ __html: resultHtml }} /> : null}
+        {resultMode ? (
+          <div className="modal-section">
+            <div id="netease-result" dangerouslySetInnerHTML={{ __html: resultHtml }} />
+            <button className="secondary-button" type="button" onClick={hook.close}>
+              关闭
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   )

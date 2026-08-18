@@ -54,7 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       resolverRef.current(user)
       resolverRef.current = undefined
     }
-  }, [user])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     let cancelled = false
