@@ -7,6 +7,7 @@ scoring and track packing without coupling through the service class.
 
 from __future__ import annotations
 
+import re
 from difflib import SequenceMatcher
 from typing import Any
 
@@ -21,6 +22,29 @@ except ImportError:
 
 def to_simplified(value: str) -> str:
     return zh_convert(value, locale="zh-cn") if zh_convert else value
+
+
+SPOTIFY_TRACK_ID_RE = re.compile(r"^[A-Za-z0-9]{22}$")
+SPOTIFY_TRACK_URL_RE = re.compile(r"track[/:]([A-Za-z0-9]{22})")
+
+
+def extract_spotify_track_id(value: str) -> str:
+    """Extract a Spotify track ID from a plain ID, share URL or ``spotify:track:`` URI.
+
+    Accepts e.g. ``1Aagur9pC2yOSqsGjhgWou``,
+    ``https://open.spotify.com/track/1Aagur9pC2yOSqsGjhgWou?si=...`` and
+    ``spotify:track:1Aagur9pC2yOSqsGjhgWou``. Returns the raw input when no
+    recognized pattern is found, so callers can surface a validation error.
+    """
+    text = (value or "").strip()
+    if not text:
+        return ""
+    if SPOTIFY_TRACK_ID_RE.fullmatch(text):
+        return text
+    match = SPOTIFY_TRACK_URL_RE.search(text)
+    if match:
+        return match.group(1)
+    return text
 
 
 def text_variants(value: str) -> list[str]:

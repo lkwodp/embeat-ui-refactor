@@ -8,7 +8,7 @@ from typing import Any
 
 from artist_aliases import normalize_artist_key
 from aliases import ARTIST_ZH_ALIASES
-from text_utils import to_simplified
+from text_utils import extract_spotify_track_id, to_simplified
 
 from Embeat import qdrant_models  # noqa: E402
 
@@ -60,7 +60,7 @@ class RecommendationsMixin:
         }
 
     def recommend(self, track_id: str, limit: int = 20) -> dict[str, Any]:
-        track_id = track_id.strip()
+        track_id = extract_spotify_track_id(track_id)
         if not track_id:
             raise ValueError("Spotify Track ID 不能为空")
 
@@ -84,7 +84,11 @@ class RecommendationsMixin:
         }
 
     def recommend_multi(self, track_ids: list[str], limit: int = 50) -> dict[str, Any]:
-        seed_ids = list(dict.fromkeys(str(item).strip() for item in track_ids if str(item).strip()))[:30]
+        seed_ids = list(
+            dict.fromkeys(
+                extract_spotify_track_id(item) for item in track_ids if extract_spotify_track_id(item)
+            )
+        )[:30]
         if not seed_ids:
             raise ValueError("请至少提供一首种子歌曲")
         started = time.perf_counter()

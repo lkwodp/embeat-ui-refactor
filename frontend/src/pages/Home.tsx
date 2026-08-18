@@ -545,7 +545,7 @@ export function Home() {
           <label htmlFor="track-id">Spotify Track ID</label>
           <div className="input-wrap mono-input">
             <span aria-hidden="true">#</span>
-            <input id="track-id" name="track-id" placeholder="1ZeVIrCWzEmsJexkrgvjFv" autoComplete="off" value={trackId} onChange={(event) => setTrackId(event.target.value)} />
+            <input id="track-id" name="track-id" placeholder="1ZeVIrCWzEmsJexkrgvjFv 或 https://open.spotify.com/track/1ZeVIrCWzEmsJexkrgvjFv" autoComplete="off" value={trackId} onChange={(event) => setTrackId(event.target.value)} />
           </div>
           <button className="secondary-button" type="submit">
             直接推荐
