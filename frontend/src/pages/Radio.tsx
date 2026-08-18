@@ -8,7 +8,7 @@ import {
   savePlatformConfig,
 } from '../api/client'
 import type { PlatformStatus, Track } from '../types'
-import { AccountBadge, BrandRow, useToast } from '../components/common'
+import { AccountBadge, BackButton, BrandRow, useToast } from '../components/common'
 
 const sourceNames: Record<string, string> = {
   similar: '声学相似',
@@ -378,9 +378,12 @@ export function Radio() {
 
       <main className="workspace radio-workspace">
         <header className="topbar">
-          <div>
-            <p className="eyebrow">Playlist Radio</p>
-            <h1>用歌单生成电台</h1>
+          <div className="topbar-heading">
+            <BackButton />
+            <div>
+              <p className="eyebrow">Playlist Radio</p>
+              <h1>用歌单生成电台</h1>
+            </div>
           </div>
           <div className="topbar-meta">
             <strong>网易云 + 酷狗</strong>
@@ -472,8 +475,11 @@ export function Radio() {
               <label htmlFor="radio-result-limit">
                 推荐数量
                 <select id="radio-result-limit" className="light-input" value={resultLimit} onChange={(event) => setResultLimit(event.target.value)}>
+                  <option value="10">10 首推荐</option>
                   <option value="20">20 首推荐</option>
+                  <option value="30">30 首推荐</option>
                   <option value="50">50 首推荐</option>
+                  <option value="100">100 首推荐</option>
                 </select>
               </label>
             </div>

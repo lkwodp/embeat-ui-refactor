@@ -21,7 +21,7 @@ def discover_genres(request: Request, limit: int = Query(100, ge=1, le=500)) -> 
 def discover_genre(
     request: Request,
     genre: str = Query(""),
-    limit: int = Query(50, ge=1, le=50),
+    limit: int = Query(50, ge=1, le=100),
 ) -> dict[str, Any]:
     user = require_user(request)
     service = require_service()

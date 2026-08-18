@@ -10,7 +10,7 @@ import {
   searchTracks,
 } from '../api/client'
 import type { HistoryItem, Track } from '../types'
-import { AccountBadge, BrandRow, ServiceStatus, useToast } from '../components/common'
+import { AccountBadge, BackButton, BrandRow, ServiceStatus, useToast } from '../components/common'
 import { ExportModal, useExportModal } from '../components/ExportModal'
 
 const sourceNames: Record<string, string> = {
@@ -29,6 +29,11 @@ function initial(value: string | null | undefined): string {
 
 function splitGenres(value: string): string[] {
   return String(value || '').split(',').map((item) => item.trim()).filter(Boolean)
+}
+
+function genreLabel(genre: string, genreZh: Record<string, string>): string {
+  const zh = genreZh[genre]
+  return zh ? `${zh} · ${genre}` : genre
 }
 
 interface Discovery {
@@ -72,10 +77,18 @@ export function Home() {
 
   const [genreOptions, setGenreOptions] = useState<string[]>([])
   const [genreSelect, setGenreSelect] = useState('')
+  const [genreZh, setGenreZh] = useState<Record<string, string>>({})
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([])
 
   const exportModal = useExportModal()
   const seedPanelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    void fetch(`${import.meta.env.BASE_URL}genres-zh.json`, { credentials: 'same-origin' })
+      .then((response) => (response.ok ? response.json() : {}))
+      .then((data) => setGenreZh(data && typeof data === 'object' ? (data as Record<string, string>) : {}))
+      .catch(() => setGenreZh({}))
+  }, [])
 
   const loadGenreOptions = useCallback(async () => {
     if (genreOptions.length) return
@@ -165,6 +178,10 @@ export function Home() {
         showToast('已找到唯一匹配版本，正在生成推荐')
         return void loadRecommendations(data.tracks[0].track_id)
       }
+      if (combined && data.tracks.length === 0) {
+        showToast(`数据库中没有“${name}”这首歌，已回退到 ${artist} 的歌手推荐`)
+        return void loadArtistRecommendations(artist)
+      }
       renderCandidates(data.tracks, name, combined ? artist : '')
     } catch (error) {
       showEmpty()
@@ -178,11 +195,11 @@ export function Home() {
     if (id) void loadRecommendations(id)
   }
 
-  async function loadRecommendations(trackId: string) {
+  async function loadRecommendations(trackId: string, limit = resultLimit || 20) {
     if (!trackId) return
     setLoading('正在生成推荐', '执行多路召回与融合排序')
     try {
-      const data = await recommendTrack(trackId, resultLimit || 20)
+      const data = await recommendTrack(trackId, limit)
       renderRecommendations(data)
     } catch (error) {
       showEmpty()
@@ -190,12 +207,12 @@ export function Home() {
     }
   }
 
-  async function loadArtistRecommendations(artistNameValue: string) {
+  async function loadArtistRecommendations(artistNameValue: string, limit = resultLimit || 20) {
     const name = String(artistNameValue || '').trim()
     if (!name) return showToast('请输入歌手名')
     setLoading('正在生成歌手电台', `提取 ${name} 的整体声学特征`)
     try {
-      const data = await recommendArtist(name, resultLimit || 20)
+      const data = await recommendArtist(name, limit)
       renderRecommendations(data)
     } catch (error) {
       showEmpty()
@@ -203,13 +220,13 @@ export function Home() {
     }
   }
 
-  async function loadRecommendationsForSeeds(trackIds: string[], title = '') {
+  async function loadRecommendationsForSeeds(trackIds: string[], title = '', limit = resultLimit || 50) {
     const ids = Array.from(new Set(trackIds.filter(Boolean)))
     if (!ids.length) return showToast('请至少选择一首种子歌曲')
-    if (ids.length === 1) return void loadRecommendations(ids[0])
+    if (ids.length === 1) return void loadRecommendations(ids[0], limit)
     setLoading('正在生成多曲电台', `融合 ${ids.length} 首种子的推荐结果`)
     try {
-      const data = await recommendMulti({ track_ids: ids, limit: resultLimit || 50, history_title: title || `${ids.length} 首种子电台` })
+      const data = await recommendMulti({ track_ids: ids, limit, history_title: title || `${ids.length} 首种子电台` })
       renderRecommendations(data)
     } catch (error) {
       showEmpty()
@@ -369,10 +386,10 @@ export function Home() {
     setCurrentPage(1)
   }
 
-  async function loadWeeklyDiscovery() {
+  async function loadWeeklyDiscovery(limit = resultLimit || 50) {
     setLoading('每周新发现', '生成本周轮换发现榜')
     try {
-      const data = await discoverWeekly(resultLimit || 50)
+      const data = await discoverWeekly(limit)
       renderDiscovery(data.tracks, `每周新发现 · ${data.week}`, data.note, { type: 'weekly' })
     } catch (error) {
       showEmpty()
@@ -380,13 +397,13 @@ export function Home() {
     }
   }
 
-  async function loadGenreDiscovery(requestedGenre = '') {
+  async function loadGenreDiscovery(requestedGenre = '', limit = resultLimit || 50) {
     const genre = requestedGenre || genreSelect
     if (!genre) return showToast('请选择流派')
     setGenreSelect(genre)
     setLoading('按流派找歌', `正在读取 ${genre}`)
     try {
-      const data = await discoverGenre(genre, resultLimit || 50)
+      const data = await discoverGenre(genre, limit)
       renderDiscovery(data.tracks, data.genre, '按热度浏览该流派', { type: 'genre', genre: data.genre })
     } catch (error) {
       showEmpty()
@@ -442,13 +459,23 @@ export function Home() {
     showToast('该类型的历史记录暂不支持恢复')
   }
 
-  function exportHistory() {
-    const blob = new Blob([JSON.stringify(historyItems, null, 2)], { type: 'application/json;charset=utf-8' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = `embeat-history-${new Date().toISOString().slice(0, 10)}.json`
-    link.click()
-    setTimeout(() => URL.revokeObjectURL(link.href), 1000)
+  async function exportHistory() {
+    try {
+      const result = await fetchHistory('', 1, 100)
+      const items = result.items.map((item) => {
+        const summary = (item.summary || {}) as Record<string, unknown>
+        return { ...item, type: item.kind, data: { ...summary, tracks: Array.isArray(item.tracks) ? item.tracks : summary.tracks } } as HistoryItem & { type: string; data: any }
+      })
+      setHistoryItems(items)
+      const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json;charset=utf-8' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = `embeat-history-${new Date().toISOString().slice(0, 10)}.json`
+      link.click()
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000)
+    } catch (error) {
+      showToast((error as Error).message)
+    }
   }
 
   function historyKindLabel(kind: string) {
@@ -493,7 +520,7 @@ export function Home() {
             <label htmlFor="track-name">歌曲</label>
             <div className="input-wrap">
               <span aria-hidden="true">⌕</span>
-              <input id="track-name" name="track-name" placeholder="小幸运" autoComplete="off" required={queryMode !== 'artist'} value={trackName} onChange={(event) => setTrackName(event.target.value)} />
+              <input id="track-name" name="track-name" placeholder="旅行的意义" autoComplete="off" required={queryMode !== 'artist'} value={trackName} onChange={(event) => setTrackName(event.target.value)} />
             </div>
           </div>
           <div id="artist-field" className={`query-field ${queryMode === 'song' ? 'hidden' : ''}`}>
@@ -502,7 +529,7 @@ export function Home() {
             </label>
             <div className="input-wrap">
               <span aria-hidden="true">♪</span>
-              <input id="artist-name" name="artist-name" placeholder={queryMode === 'song' ? '田馥甄' : '周杰伦 / Jay Chou'} autoComplete="off" required={queryMode === 'artist'} value={artistName} onChange={(event) => setArtistName(event.target.value)} />
+              <input id="artist-name" name="artist-name" placeholder={queryMode === 'song' ? '田馥甄' : '陈绮贞 / Cheer Chen'} autoComplete="off" required={queryMode === 'artist'} value={artistName} onChange={(event) => setArtistName(event.target.value)} />
             </div>
           </div>
           <button id="search-button" className="primary-button" type="submit">
@@ -549,7 +576,7 @@ export function Home() {
               <option value="">按流派找歌</option>
               {genreOptions.map((genre) => (
                 <option key={genre} value={genre}>
-                  {genre}
+                  {genreLabel(genre, genreZh)}
                 </option>
               ))}
             </select>
@@ -563,11 +590,14 @@ export function Home() {
 
       <main className="workspace">
         <header className="topbar">
-          <div>
-            <p className="eyebrow" id="view-eyebrow">
-              {eyebrow}
-            </p>
-            <h1 id="view-title">{title}</h1>
+          <div className="topbar-heading">
+            {view !== 'empty' && <BackButton onClick={showEmpty} />}
+            <div>
+              <p className="eyebrow" id="view-eyebrow">
+                {eyebrow}
+              </p>
+              <h1 id="view-title">{title}</h1>
+            </div>
           </div>
           <div className="topbar-meta" id="topbar-meta" dangerouslySetInnerHTML={{ __html: meta }} />
         </header>
@@ -695,15 +725,18 @@ export function Home() {
                 onChange={(event) => {
                   const value = Number(event.target.value)
                   setResultLimit(value)
-                  if (discovery?.type === 'weekly') return void loadWeeklyDiscovery()
-                  if (discovery?.type === 'genre' && discovery.genre) return void loadGenreDiscovery(discovery.genre)
-                  if (currentArtist) return void loadArtistRecommendations(currentArtist.input_name || currentArtist.artist_name)
-                  if (seeds.length > 1) return void loadRecommendationsForSeeds(seeds.map((seed) => seed.track_id))
-                  return void loadRecommendations(seeds[0]?.track_id)
+                  if (discovery?.type === 'weekly') return void loadWeeklyDiscovery(value)
+                  if (discovery?.type === 'genre' && discovery.genre) return void loadGenreDiscovery(discovery.genre, value)
+                  if (currentArtist) return void loadArtistRecommendations(currentArtist.input_name || currentArtist.artist_name, value)
+                  if (seeds.length > 1) return void loadRecommendationsForSeeds(seeds.map((seed) => seed.track_id), '', value)
+                  return void loadRecommendations(seeds[0]?.track_id, value)
                 }}
               >
+                <option value="10">获取 10 首</option>
                 <option value="20">获取 20 首</option>
+                <option value="30">获取 30 首</option>
                 <option value="50">获取 50 首</option>
+                <option value="100">获取 100 首</option>
               </select>
               <select id="result-page-size" className="compact-select" aria-label="推荐结果每页数量" value={resultPageSize} onChange={(event) => { setResultPageSize(Number(event.target.value)); setCurrentPage(1) }}>
                 <option value="5">每页 5 条</option>

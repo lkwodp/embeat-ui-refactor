@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { fetchConfig, fetchHealth, loginCaptcha, savePlatformConfig, sendCaptcha } from '../api/client'
-import { AccountBadge, BrandRow, useToast } from '../components/common'
+import { AccountBadge, BackButton, BrandRow, useToast } from '../components/common'
 
 const platformNames: Record<string, string> = { netease: '网易云音乐', kugou: '酷狗音乐' }
 
@@ -221,9 +221,12 @@ export function Settings() {
 
       <main className="workspace settings-workspace">
         <header className="topbar">
-          <div>
-            <p className="eyebrow">Platform Accounts</p>
-            <h1>平台账号配置</h1>
+          <div className="topbar-heading">
+            <BackButton />
+            <div>
+              <p className="eyebrow">Platform Accounts</p>
+              <h1>平台账号配置</h1>
+            </div>
           </div>
           <div className="topbar-meta">按当前 Embeat 用户隔离</div>
         </header>
