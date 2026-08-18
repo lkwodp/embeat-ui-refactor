@@ -13,7 +13,7 @@ submodule 引入。
 embeat-ui-web/
 ├── embeat/             # git submodule：Embeat ML 后端（EmbeatDatabase / infer）
 ├── backend/
-│   ├── embeat/         # 复制的业务核心（config / service / artist_aliases / kugou_client ...）
+│   ├── embeat/         # 复制的业务核心，拆分为细模块（config / service / search / recommendations ...）
 │   ├── app/
 │   │   ├── main.py     # FastAPI 入口
 │   │   ├── api/        # 路由（health / search / recommend）

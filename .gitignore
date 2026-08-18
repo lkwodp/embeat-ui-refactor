@@ -19,6 +19,13 @@ backend/embeat/data/music_metadata_cache.json
 backend/embeat/data/music_metadata_cache.*.json
 backend/embeat/data/backups/
 
+# Runtime logs
+backend/logs/
+backend/*.pid
+
+# embeat
+embeat/.env
+
 # Node (frontend)
 node_modules/
 frontend/dist/

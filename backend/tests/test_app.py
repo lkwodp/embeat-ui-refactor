@@ -28,4 +28,4 @@ def test_recommend_missing_track_id_field_rejected():
 def test_spa_serves_frontend_build():
     response = client.get("/")
     assert response.status_code == 200
-    assert "Embeat Web" in response.text
+    assert "Embeat Music Discovery" in response.text
