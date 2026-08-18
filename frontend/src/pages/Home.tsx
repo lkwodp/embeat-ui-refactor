@@ -521,6 +521,9 @@ export function Home() {
             <div className="input-wrap">
               <span aria-hidden="true">⌕</span>
               <input id="track-name" name="track-name" placeholder="旅行的意义" autoComplete="off" required={queryMode !== 'artist'} value={trackName} onChange={(event) => setTrackName(event.target.value)} />
+              {trackName && (
+                <button className="input-clear" type="button" aria-label="清空歌曲" onClick={() => setTrackName('')}>×</button>
+              )}
             </div>
           </div>
           <div id="artist-field" className={`query-field ${queryMode === 'song' ? 'hidden' : ''}`}>
@@ -530,6 +533,9 @@ export function Home() {
             <div className="input-wrap">
               <span aria-hidden="true">♪</span>
               <input id="artist-name" name="artist-name" placeholder={queryMode === 'song' ? '田馥甄' : '陈绮贞 / Cheer Chen'} autoComplete="off" required={queryMode === 'artist'} value={artistName} onChange={(event) => setArtistName(event.target.value)} />
+              {artistName && (
+                <button className="input-clear" type="button" aria-label="清空艺人" onClick={() => setArtistName('')}>×</button>
+              )}
             </div>
           </div>
           <button id="search-button" className="primary-button" type="submit">
@@ -546,6 +552,9 @@ export function Home() {
           <div className="input-wrap mono-input">
             <span aria-hidden="true">#</span>
             <input id="track-id" name="track-id" placeholder="1ZeVIrCWzEmsJexkrgvjFv 或 https://open.spotify.com/track/1ZeVIrCWzEmsJexkrgvjFv" autoComplete="off" value={trackId} onChange={(event) => setTrackId(event.target.value)} />
+            {trackId && (
+              <button className="input-clear" type="button" aria-label="清空 Spotify Track ID" onClick={() => setTrackId('')}>×</button>
+            )}
           </div>
           <button className="secondary-button" type="submit">
             直接推荐
