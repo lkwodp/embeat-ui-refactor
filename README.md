@@ -1,18 +1,10 @@
 # Embeat UI Web
 
-基于 FastAPI + React 的 Embeat 音乐推荐界面（模块化重构版），1:1 复刻
-[embeat-ui](https://github.com/lkwodp/embeat-ui) 的三页界面（搜索发现 / 歌单电台 /
-设置），并补齐 oss 前端依赖的全部后端 API。前端提供搜索、按流派/每周发现浏览、
-多曲电台、历史记录，并可将推荐结果保存到网易云或酷狗歌单。推荐逻辑调用
-[Embeat ML 后端](https://github.com/gdstudio-org/Embeat)（需自行准备）和 Qdrant
-向量数据库。
+基于 FastAPI + React 的 Embeat 音乐推荐界面（模块化重构版），1:1 复刻[embeat-ui](https://github.com/lkwodp/embeat-ui) 的三页界面（搜索发现 / 歌单电台 /设置），并补齐 oss 前端依赖的全部后端 API。前端提供搜索、按流派/每周发现浏览、多曲电台、历史记录，并可将推荐结果保存到网易云或酷狗歌单。推荐逻辑调用[Embeat ML 后端](https://github.com/gdstudio-org/Embeat)（需自行准备）和 Qdrant向量数据库。
 
-- 业务核心来自 embeat-ui，已**复制到本项目并重写为细模块**（`backend/embeat/`），
-  不再依赖 oss 仓库。
-- ML 后端 [gdstudio-org/Embeat](https://github.com/gdstudio-org/Embeat) 通过 git
-  submodule 引入（`embeat/`，提供 Qdrant 向量检索与 `infer/Embeat.py`）。
-- 后端 FastAPI 提供全部 API 并托管构建后的 React 前端；前端 Vite + React +
-  TypeScript。
+- 业务核心来自 embeat-ui，已**复制到本项目并重写为细模块**（`backend/embeat/`），不再依赖 oss 仓库。
+- ML 后端 [gdstudio-org/Embeat](https://github.com/gdstudio-org/Embeat) 通过 git   submodule 引入（`embeat/`，提供 Qdrant 向量检索与 `infer/Embeat.py`）。
+- 后端 FastAPI 提供全部 API 并托管构建后的 React 前端；前端 Vite + React +TypeScript。
 
 ## 目录结构
 
@@ -79,25 +71,24 @@ UI_PORT=8765
 
 全部可配置项见 `backend/embeat/config.py` 的 `_ENV_KEYS`：
 
-| 变量                 | 默认值                    | 说明                                                                                 |
-| -------------------- | ------------------------- | ------------------------------------------------------------------------------------ |
-| `EMBEAT_ROOT`      | `../Embeat`（自动探测） | Embeat ML 后端仓库路径（含 `infer/`）                                                |
-| `QDRANT_URL`       | `http://127.0.0.1:6333` | Qdrant 地址（远程部署可改为服务器地址）                                               |
-| `QDRANT_API_KEY`   | 空                        | Qdrant API Key（如启用）                                                             |
+| 变量                  | 默认值                    | 说明                                                                                 |
+| --------------------- | ------------------------- | ------------------------------------------------------------------------------------ |
+| `EMBEAT_ROOT`       | `../Embeat`（自动探测） | Embeat ML 后端仓库路径（含`infer/`）                                               |
+| `QDRANT_URL`        | `http://127.0.0.1:6333` | Qdrant 地址（远程部署可改为服务器地址）                                              |
+| `QDRANT_API_KEY`    | 空                        | Qdrant API Key（如启用）                                                             |
 | `QDRANT_COLLECTION` | `spotify_tracks`        | 使用的集合名                                                                         |
-| `QDRANT_TIMEOUT`   | `30`                    | Qdrant 请求超时（秒）                                                                |
-| `NETEASE_API_URL`  | 空                        | 界面默认填写的网易云兼容 API 地址                                                     |
-| `KUGOU_API_URL`    | 空                        | 界面默认填写的酷狗兼容 API 地址                                                       |
-| `PROXY_URL`        | 空                        | 界面默认填写的 HTTP 代理（本机直连被拦截时使用）                                      |
-| `MB_LOOKUP_PATH`   | 空                        | MusicBrainz 别名数据库（`mb_lookup.db`）路径；留空时自动使用 `data/mb_lookup.db`    |
-| `UI_HOST`          | `0.0.0.0`               | 网页服务监听地址                                                                     |
-| `UI_PORT`          | `8765`                  | 网页服务端口                                                                         |
-| `INVITE_CODE`      | 空                        | 注册邀请码，留空允许开放注册                                                         |
-| `AUTH_ENABLED`     | `true`                  | 是否启用账号登录/注册；`false` 时访问级别由 `PAIRING_CODE` 决定                    |
-| `PAIRING_CODE`     | 空                        | `AUTH_ENABLED=false` 时的访问控制：留空为开放模式，设为固定码则为配对模式         |
+| `QDRANT_TIMEOUT`    | `30`                    | Qdrant 请求超时（秒）                                                                |
+| `NETEASE_API_URL`   | 空                        | 界面默认填写的网易云兼容 API 地址                                                    |
+| `KUGOU_API_URL`     | 空                        | 界面默认填写的酷狗兼容 API 地址                                                      |
+| `PROXY_URL`         | 空                        | 界面默认填写的 HTTP 代理（本机直连被拦截时使用）                                     |
+| `MB_LOOKUP_PATH`    | 空                        | MusicBrainz 别名数据库（`mb_lookup.db`）路径；留空时自动使用 `data/mb_lookup.db` |
+| `UI_HOST`           | `0.0.0.0`               | 网页服务监听地址                                                                     |
+| `UI_PORT`           | `8765`                  | 网页服务端口                                                                         |
+| `INVITE_CODE`       | 空                        | 注册邀请码，留空允许开放注册                                                         |
+| `AUTH_ENABLED`      | `true`                  | 是否启用账号登录/注册；`false` 时访问级别由 `PAIRING_CODE` 决定                  |
+| `PAIRING_CODE`      | 空                        | `AUTH_ENABLED=false` 时的访问控制：留空为开放模式，设为固定码则为配对模式          |
 
-另外，ML 检索参数（召回权重、流派/热度阈值、简体转繁体等）通过
-`embeat/.env` 配置（复制自 `embeat/.env.example`），供 `infer/Embeat.py` 读取。
+另外，ML 检索参数（召回权重、流派/热度阈值、简体转繁体等）通过`embeat/.env` 配置（复制自 `embeat/.env.example`），供 `infer/Embeat.py` 读取。
 
 ## 开发
 
@@ -137,8 +128,7 @@ cd ../backend
 uv run uvicorn app.main:app --host 0.0.0.0 --port 8765
 ```
 
-FastAPI 检测到 `frontend/dist` 存在时自动挂载 `/assets` 并提供 SPA 回退
-（`/`、`/radio`、`/settings` 均返回 index.html），未构建时返回 404 提示。
+FastAPI 检测到 `frontend/dist` 存在时自动挂载 `/assets` 并提供 SPA 回退（`/`、`/radio`、`/settings` 均返回 index.html），未构建时返回 404 提示。
 
 ## API 概览
 
@@ -267,8 +257,7 @@ uv run python -m pytest embeat/tests -q   # 业务核心（15 项）
 git submodule update --remote embeat
 ```
 
-> 注意：`embeat/.env` 是本地配置（复制自 `.env.example`），已被 submodule
-> 的 `.gitignore` 排除，不会被提交。
+> 注意：`embeat/.env` 是本地配置（复制自 `.env.example`），已被 submodule的 `.gitignore` 排除，不会被提交。
 
 ## 致谢
 
