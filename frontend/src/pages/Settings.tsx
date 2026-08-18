@@ -22,6 +22,8 @@ interface PanelState {
   sendDisabled: boolean
   saveBusy: boolean
   loginBusy: boolean
+  cookieOpen: boolean
+  phoneOpen: boolean
 }
 
 function initialPanel(country: string): PanelState {
@@ -38,6 +40,8 @@ function initialPanel(country: string): PanelState {
     sendDisabled: false,
     saveBusy: false,
     loginBusy: false,
+    cookieOpen: true,
+    phoneOpen: true,
   }
 }
 
@@ -98,6 +102,8 @@ export function Settings() {
         phone: status.phone || prev.phone,
         state: status.configured ? `已连接${status.uid || status.userid ? ` · UID ${status.uid || status.userid}` : ''}` : '未连接',
         stateStatus: status.configured ? 'online' : 'offline',
+        cookieOpen: status.configured ? false : prev.cookieOpen,
+        phoneOpen: status.configured ? false : prev.phoneOpen,
       }))
     } catch (error) {
       setPanel((prev) => ({ ...prev, state: '状态读取失败', stateStatus: 'offline' }))
@@ -114,6 +120,11 @@ export function Settings() {
       code: panel.code.trim(),
       country_code: panel.country.trim() || '86',
     }
+  }
+
+  function togglePanel(platform: 'netease' | 'kugou', section: 'cookie' | 'phone') {
+    const setPanel = platform === 'netease' ? setNetease : setKugou
+    setPanel((prev) => ({ ...prev, [section === 'cookie' ? 'cookieOpen' : 'phoneOpen']: !prev[section === 'cookie' ? 'cookieOpen' : 'phoneOpen'] }))
   }
 
   async function saveCookie(event: FormEvent<HTMLFormElement>, platform: 'netease' | 'kugou') {
@@ -252,44 +263,50 @@ export function Settings() {
               </label>
             </div>
             <form className="settings-method" data-role="cookie-form" onSubmit={(event) => void saveCookie(event, 'netease')}>
-              <div className="settings-method-title">
+              <button type="button" className="settings-method-title" aria-expanded={netease.cookieOpen} onClick={() => togglePanel('netease', 'cookie')}>
                 <strong>Cookie 连接</strong>
                 <small>保存后不再回显</small>
-              </div>
-              <label>
-                Cookie
-                <textarea data-role="cookie" className="light-input cookie-input" autoComplete="off" required value={netease.cookie} onChange={(event) => setNetease((prev) => ({ ...prev, cookie: event.target.value }))} />
-              </label>
-              <button className="primary-button" type="submit" disabled={netease.saveBusy}>
-                {netease.saveBusy ? '正在校验' : '校验并保存'}
+                <span className="settings-chevron">{netease.cookieOpen ? '▾' : '▸'}</span>
               </button>
+              <div className={netease.cookieOpen ? undefined : 'hidden'}>
+                <label>
+                  Cookie
+                  <textarea data-role="cookie" className="light-input cookie-input" autoComplete="off" required value={netease.cookie} onChange={(event) => setNetease((prev) => ({ ...prev, cookie: event.target.value }))} />
+                </label>
+                <button className="primary-button" type="submit" disabled={netease.saveBusy}>
+                  {netease.saveBusy ? '正在校验' : '校验并保存'}
+                </button>
+              </div>
             </form>
             <form className="settings-method" data-role="phone-form" onSubmit={(event) => void loginByPhone(event, 'netease')}>
-              <div className="settings-method-title">
+              <button type="button" className="settings-method-title" aria-expanded={netease.phoneOpen} onClick={() => togglePanel('netease', 'phone')}>
                 <strong>手机验证码登录</strong>
                 <small>中国大陆默认 +86</small>
-              </div>
-              <div className="settings-phone-row">
-                <label>
-                  区号
-                  <input data-role="country" className="light-input" value={netease.country} inputMode="numeric" onChange={(event) => setNetease((prev) => ({ ...prev, country: event.target.value }))} />
-                </label>
-                <label>
-                  手机号
-                  <input data-role="phone" className="light-input" inputMode="tel" autoComplete="tel" required value={netease.phone} onChange={(event) => setNetease((prev) => ({ ...prev, phone: event.target.value }))} />
-                </label>
-                <button data-role="send" className="secondary-button" type="button" disabled={netease.sendDisabled} onClick={() => void doSendCaptcha('netease')}>
-                  {netease.sendLabel}
-                </button>
-              </div>
-              <div className="settings-code-row">
-                <label>
-                  验证码
-                  <input data-role="code" className="light-input" inputMode="numeric" autoComplete="one-time-code" required value={netease.code} onChange={(event) => setNetease((prev) => ({ ...prev, code: event.target.value }))} />
-                </label>
-                <button className="primary-button" type="submit" disabled={netease.loginBusy}>
-                  {netease.loginBusy ? '正在登录' : '登录并保存'}
-                </button>
+                <span className="settings-chevron">{netease.phoneOpen ? '▾' : '▸'}</span>
+              </button>
+              <div className={netease.phoneOpen ? undefined : 'hidden'}>
+                <div className="settings-phone-row">
+                  <label>
+                    区号
+                    <input data-role="country" className="light-input" value={netease.country} inputMode="numeric" onChange={(event) => setNetease((prev) => ({ ...prev, country: event.target.value }))} />
+                  </label>
+                  <label>
+                    手机号
+                    <input data-role="phone" className="light-input" inputMode="tel" autoComplete="tel" required value={netease.phone} onChange={(event) => setNetease((prev) => ({ ...prev, phone: event.target.value }))} />
+                  </label>
+                  <button data-role="send" className="secondary-button" type="button" disabled={netease.sendDisabled} onClick={() => void doSendCaptcha('netease')}>
+                    {netease.sendLabel}
+                  </button>
+                </div>
+                <div className="settings-code-row">
+                  <label>
+                    验证码
+                    <input data-role="code" className="light-input" inputMode="numeric" autoComplete="one-time-code" required value={netease.code} onChange={(event) => setNetease((prev) => ({ ...prev, code: event.target.value }))} />
+                  </label>
+                  <button className="primary-button" type="submit" disabled={netease.loginBusy}>
+                    {netease.loginBusy ? '正在登录' : '登录并保存'}
+                  </button>
+                </div>
               </div>
             </form>
             <button className="forget-button" data-role="clear" type="button" onClick={() => void clearCredential('netease')}>
@@ -318,41 +335,47 @@ export function Settings() {
               </label>
             </div>
             <form className="settings-method" data-role="cookie-form" onSubmit={(event) => void saveCookie(event, 'kugou')}>
-              <div className="settings-method-title">
+              <button type="button" className="settings-method-title" aria-expanded={kugou.cookieOpen} onClick={() => togglePanel('kugou', 'cookie')}>
                 <strong>Cookie 连接</strong>
                 <small>需包含 token 与 userid</small>
-              </div>
-              <label>
-                Cookie
-                <textarea data-role="cookie" className="light-input cookie-input" autoComplete="off" required value={kugou.cookie} onChange={(event) => setKugou((prev) => ({ ...prev, cookie: event.target.value }))} />
-              </label>
-              <button className="primary-button" type="submit" disabled={kugou.saveBusy}>
-                {kugou.saveBusy ? '正在校验' : '校验并保存'}
+                <span className="settings-chevron">{kugou.cookieOpen ? '▾' : '▸'}</span>
               </button>
+              <div className={kugou.cookieOpen ? undefined : 'hidden'}>
+                <label>
+                  Cookie
+                  <textarea data-role="cookie" className="light-input cookie-input" autoComplete="off" required value={kugou.cookie} onChange={(event) => setKugou((prev) => ({ ...prev, cookie: event.target.value }))} />
+                </label>
+                <button className="primary-button" type="submit" disabled={kugou.saveBusy}>
+                  {kugou.saveBusy ? '正在校验' : '校验并保存'}
+                </button>
+              </div>
             </form>
             <form className="settings-method" data-role="phone-form" onSubmit={(event) => void loginByPhone(event, 'kugou')}>
-              <div className="settings-method-title">
+              <button type="button" className="settings-method-title" aria-expanded={kugou.phoneOpen} onClick={() => togglePanel('kugou', 'phone')}>
                 <strong>手机验证码登录</strong>
                 <small>由酷狗 API 发送</small>
-              </div>
-              <input data-role="country" type="hidden" value={kugou.country} />
-              <div className="settings-phone-row kugou-phone-row">
-                <label>
-                  手机号
-                  <input data-role="phone" className="light-input" inputMode="tel" autoComplete="tel" required value={kugou.phone} onChange={(event) => setKugou((prev) => ({ ...prev, phone: event.target.value }))} />
-                </label>
-                <button data-role="send" className="secondary-button" type="button" disabled={kugou.sendDisabled} onClick={() => void doSendCaptcha('kugou')}>
-                  {kugou.sendLabel}
-                </button>
-              </div>
-              <div className="settings-code-row">
-                <label>
-                  验证码
-                  <input data-role="code" className="light-input" inputMode="numeric" autoComplete="one-time-code" required value={kugou.code} onChange={(event) => setKugou((prev) => ({ ...prev, code: event.target.value }))} />
-                </label>
-                <button className="primary-button" type="submit" disabled={kugou.loginBusy}>
-                  {kugou.loginBusy ? '正在登录' : '登录并保存'}
-                </button>
+                <span className="settings-chevron">{kugou.phoneOpen ? '▾' : '▸'}</span>
+              </button>
+              <div className={kugou.phoneOpen ? undefined : 'hidden'}>
+                <input data-role="country" type="hidden" value={kugou.country} />
+                <div className="settings-phone-row kugou-phone-row">
+                  <label>
+                    手机号
+                    <input data-role="phone" className="light-input" inputMode="tel" autoComplete="tel" required value={kugou.phone} onChange={(event) => setKugou((prev) => ({ ...prev, phone: event.target.value }))} />
+                  </label>
+                  <button data-role="send" className="secondary-button" type="button" disabled={kugou.sendDisabled} onClick={() => void doSendCaptcha('kugou')}>
+                    {kugou.sendLabel}
+                  </button>
+                </div>
+                <div className="settings-code-row">
+                  <label>
+                    验证码
+                    <input data-role="code" className="light-input" inputMode="numeric" autoComplete="one-time-code" required value={kugou.code} onChange={(event) => setKugou((prev) => ({ ...prev, code: event.target.value }))} />
+                  </label>
+                  <button className="primary-button" type="submit" disabled={kugou.loginBusy}>
+                    {kugou.loginBusy ? '正在登录' : '登录并保存'}
+                  </button>
+                </div>
               </div>
             </form>
             <button className="forget-button" data-role="clear" type="button" onClick={() => void clearCredential('kugou')}>

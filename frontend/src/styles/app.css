@@ -687,6 +687,9 @@ html[data-theme="berry"] .platform-progress[data-status="failed"] { border-color
 .settings-fields label, .settings-method label { display: grid; gap: 7px; color: var(--muted); font-size: 13px; }
 .settings-method-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .settings-method-title small { color: var(--muted); }
+.settings-chevron { margin-left: auto; color: var(--muted); font-size: 12px; }
+.settings-method-title { width: 100%; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.settings-method-title:hover small, .settings-method-title:hover .settings-chevron { color: var(--accent-dark); }
 .settings-phone-row { display: grid; grid-template-columns: 80px minmax(0, 1fr) auto; gap: 10px; align-items: end; }
 .settings-phone-row.kugou-phone-row { grid-template-columns: minmax(0, 1fr) auto; }
 .settings-code-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; }
