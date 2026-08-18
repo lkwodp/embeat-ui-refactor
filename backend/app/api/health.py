@@ -20,7 +20,7 @@ def health() -> HealthResponse:
     points = 0
     if ready:
         try:
-            points = service.database.record_count
-        except AttributeError:
+            points = int(service.health().get("points", 0) or 0)
+        except Exception:
             points = 0
     return HealthResponse(ready=ready, points=points)
